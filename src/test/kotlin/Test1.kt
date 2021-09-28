@@ -5,17 +5,17 @@ import kotlin.test.assertEquals
 internal class Test1 {
 
     @Test
-    fun testGetInputDir() {
+    fun testGetInputBaseName() {
         val args1 = arrayOf("add", "src", "sdfkj", "kjdsfhgshj")
         val args2 = arrayOf("del", "src/sklfir")
         val args3 = arrayOf("add")
         val args4 = arrayOf("del", "sdfkj")
         val args5 = emptyArray<String>()
-        assertEquals(File(DATA_BASES_DIR + "src"), getInputDir(args1))
-        assertEquals(File(DATA_BASES_DIR + "src/sklfir"), getInputDir(args2))
-        assertEquals(null, getInputDir(args3))
-        assertEquals(File(DATA_BASES_DIR + "sdfkj"), getInputDir(args4))
-        assertEquals(null, getInputDir(args5))
+        assertEquals(DATA_BASES_DIR + "src", getInputBaseName(args1))
+        assertEquals(DATA_BASES_DIR + "src/sklfir", getInputBaseName(args2))
+        assertEquals(null, getInputBaseName(args3))
+        assertEquals(DATA_BASES_DIR + "sdfkj", getInputBaseName(args4))
+        assertEquals(null, getInputBaseName(args5))
     }
 
     @Test
