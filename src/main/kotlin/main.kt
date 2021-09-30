@@ -1,19 +1,30 @@
 import java.io.File
 import java.io.RandomAccessFile
-import java.nio.charset.Charset
-import java.util.*
+import java.util.Scanner
 import kotlin.text.StringBuilder
 
 const val DATA_BASES_DIR = ""
-const val MAX_DEL = 2
 //место, где мы храним папку с базами данных
+const val MAX_DEL = 1000
+//Момент, когда удаленных значений становится слишком много и нам надо переписать базу данных
 
-enum class Command {
-    ADD, DEL, FIND, PRINT, FIND_FROM_FILE
+enum class Command(val command: String) {
+    ADD("add"), DEL("del"), FIND("find"), FIND_FROM_FILE("find_from_file"), PRINT("print"), ERR("");
+
+    companion object {
+        fun getCommandFromString(str: String): Command {
+            for (value in values()) {
+                if (value.command == str) {
+                    return value
+                }
+            }
+            return ERR
+        }
+    }
 }
 
 enum class Error {
-    BAD_COMMAND, BAD_KEY
+    BAD_COMMAND, BAD_KEY, BAD_FILE
 }
 
 data class KeyVal(val key: Key, val value: Value) {}
@@ -27,42 +38,39 @@ typealias BaseName = String
 typealias Key = String
 typealias Value = String
 
-// Нужно добавить --- вернуть много сразу значений получить по клучам из файла
-// add <dataBaseName> <key> <val> --- добавить ключ - значение в базу данных dataBaseName
-// del <dataBaseName> <key> --- удалить значение по ключу в базе данных dataBaseName
-// find <dataBaseName> <key> --- найти значение по ключу в базе данных dataBaseName
-// find_from_file <dataBaseName> <file.txt> --- найти значение по ключу в базе данных dataBaseName
-// print <dataBaseName> --- вывести базу данных dataBaseName
-
 fun main(args: Array<String>) {
-    val command = Command.valueOf(args[0].uppercase())
-    val baseName = getInputBaseName(args)
-    if (baseName != null) {
-        val dataBase = createDataBase(baseName)
-        when (command) {
-            Command.ADD -> add(dataBase, getInputKeyVal(args))
-            Command.DEL -> del(dataBase, getInputKey(args))
-            Command.FIND -> println(find(dataBase, getInputKey(args)) ?: printErr(Error.BAD_KEY))
-            Command.FIND_FROM_FILE -> findFromFile(dataBase, getInputFile(args))?.forEach {
-                println(
-                    it ?: printErr(Error.BAD_KEY)
-                )
-            } ?: printErr(Error.BAD_COMMAND)
-            Command.PRINT -> print(dataBase)
+    if(!args.isEmpty()) {
+        val command = Command.getCommandFromString(args[0])
+        val baseName = getInputBaseName(args)
+        if (baseName != null && command != Command.ERR) {
+            val dataBase = createDataBase(baseName)
+            when (command) {
+                Command.ADD -> add(dataBase, getInputKeyVal(args))
+                Command.DEL -> del(dataBase, getInputKey(args))
+                Command.FIND -> println(find(dataBase, getInputKey(args)) ?: printErr(Error.BAD_KEY))
+                Command.FIND_FROM_FILE -> findFromFile(dataBase, getInputFile(args))?.forEach {
+                    println(
+                        it ?: printErr(Error.BAD_KEY)
+                    )
+                } ?: printErr(Error.BAD_FILE)
+                Command.PRINT -> print(dataBase)
+                Command.ERR -> printErr(Error.BAD_COMMAND)
+            }
+            reorganize(dataBase)
+            close(dataBase)
+        } else {
+            printErr(Error.BAD_COMMAND)
         }
-        reorganize(dataBase)
-        close(dataBase)
-    } else {
-        printErr(Error.BAD_COMMAND)
     }
 }
 
 fun getInputFile(args: Array<String>): File? {
-    if (args.size < 3 && File(args[2]).exists()) {
+    if (args.size < 3 || !File(args[2]).isFile) {
         return null
     }
     return File(args[2])
 }
+//получение пути к файлу из аргументов командной строки
 
 fun getInputBaseName(args: Array<String>): BaseName? {
     if (args.size < 2) {
@@ -70,6 +78,7 @@ fun getInputBaseName(args: Array<String>): BaseName? {
     }
     return DATA_BASES_DIR + args[1]
 }
+//получение названия базы данных из аргументов командной строки
 
 fun getInputKeyVal(args: Array<String>): KeyVal? {
     if (args.size < 4) {
@@ -77,6 +86,7 @@ fun getInputKeyVal(args: Array<String>): KeyVal? {
     }
     return KeyVal(args[2], args[3])
 }
+//получение пары ключ-значение из аргументов командной строки
 
 fun getInputKey(args: Array<String>): Key? {
     if (args.size < 3) {
@@ -84,12 +94,14 @@ fun getInputKey(args: Array<String>): Key? {
     }
     return args[2]
 }
+//получение ключа из аргументов командной строки
 
 fun getKeysFromFile(file: File): Array<Key> {
     val lines = file.readLines()
     val keys = Array(lines.size, { i -> lines[i] })
     return keys
 }
+//получение списка ключей из файла
 
 fun createDataBase(dataBaseName: BaseName): DataBase {
     if (!File(dataBaseName).exists()) {
@@ -108,6 +120,7 @@ fun createDataBase(dataBaseName: BaseName): DataBase {
     dataBase.numberOfDelValues = scanner.nextInt()
     return dataBase
 }
+//создание базы данных, если ее еще не было, создание Random Access файлов и собирание данных о количестве удаленных элементов
 
 fun findKeyPlace(keysFile: RandomAccessFile, key: Key): Long? {
     keysFile.seek(0)
@@ -123,15 +136,17 @@ fun findKeyPlace(keysFile: RandomAccessFile, key: Key): Long? {
     }
     return null
 }
+//поиск места начала строки key в Random Access файле ключей
 
 fun getRange(line: String): Pair<Long, Long> {
     val lineArguments = line.split("$")
-    if (lineArguments.size < 3 || line.first() == '$') {
+    if (lineArguments.size < 3 || line.first() == '$' || lineArguments[1].toLong() > lineArguments[2].toLong()) {
         return Pair(0L, -1L)
     } else {
         return Pair(lineArguments[1].toLong(), lineArguments[2].toLong())
     }
 }
+//получение интервала в котором лежит значение в Random Access файле значений по строке из Random Access файла ключей
 
 fun find(dataBase: DataBase, key: Key?): Value? {
     if (key == null) {
@@ -214,6 +229,7 @@ fun printErr(error: Error) {
     when (error) {
         Error.BAD_COMMAND -> println("Ваша команда некорректна, попробуйте еще раз.")
         Error.BAD_KEY -> println("Вашего ключа нет в базе данных, попробуйте еще раз.")
+        Error.BAD_FILE -> println("Путь к файлу не корректен, попробуйте еще раз.")
     }
 }
 
@@ -236,7 +252,11 @@ fun reorganize(dataBase: DataBase) {
             add(dataBase, i)
         }
     }
+    val pw = dataBase.texInfoFile.printWriter()
+    pw.println(dataBase.numberOfDelValues)
+    pw.close()
 }
+//переписывание базы данных если в ней удаленных элементов становится больше чем MAX_DEL
 
 fun close(dataBase: DataBase) {
     dataBase.keysFile.close()
