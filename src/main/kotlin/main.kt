@@ -5,7 +5,7 @@ import java.util.*
 import kotlin.text.StringBuilder
 
 const val DATA_BASES_DIR = ""
-const val MAX_DEL = 1000
+const val MAX_DEL = 2
 //место, где мы храним папку с базами данных
 
 enum class Command {
@@ -42,7 +42,7 @@ fun main(args: Array<String>) {
         when (command) {
             Command.ADD -> add(dataBase, getInputKeyVal(args))
             Command.DEL -> del(dataBase, getInputKey(args))
-            Command.FIND -> println(find(dataBase, getInputKey(args)) ?: "Такого ключа нет в базе данных.")
+            Command.FIND -> println(find(dataBase, getInputKey(args)) ?: printErr(Error.BAD_KEY))
             Command.FIND_FROM_FILE -> findFromFile(dataBase, getInputFile(args))?.forEach {
                 println(
                     it ?: printErr(Error.BAD_KEY)
@@ -201,9 +201,11 @@ fun add(dataBase: DataBase, kv: KeyVal?) {
 
 fun print(dataBase: DataBase) {
     var line = dataBase.keysFile.readLine()
-    while (line != null && line[0] != '$') {
-        val key = line.split("$")[0]
-        println(key + "$" + find(dataBase, key))
+    while (line != null) {
+        if( line[0] != '$') {
+            val key = line.split("$")[0]
+            println(key + "$" + find(dataBase, key))
+        }
         line = dataBase.keysFile.readLine()
     }
 }
@@ -217,8 +219,22 @@ fun printErr(error: Error) {
 
 fun reorganize(dataBase: DataBase) {
     if (dataBase.numberOfDelValues > MAX_DEL) {
+        val keyValList = mutableListOf<KeyVal>()
         dataBase.numberOfDelValues = 0
-        TODO()
+        dataBase.keysFile.seek(0)
+        var line = dataBase.keysFile.readLine()
+        while (line != null) {
+            if(line[0] != '$') {
+                val key = line.split("$")[0]
+                keyValList.add(KeyVal(key, find(dataBase, key)!!))
+            }
+            line = dataBase.keysFile.readLine()
+        }
+        dataBase.keysFile.setLength(0)
+        dataBase.valuesFile.setLength(0)
+        for (i in keyValList){
+            add(dataBase,i)
+        }
     }
 }
 
