@@ -202,7 +202,7 @@ fun add(dataBase: DataBase, kv: KeyVal?) {
 fun print(dataBase: DataBase) {
     var line = dataBase.keysFile.readLine()
     while (line != null) {
-        if( line[0] != '$') {
+        if (line[0] != '$') {
             val key = line.split("$")[0]
             println(key + "$" + find(dataBase, key))
         }
@@ -224,7 +224,7 @@ fun reorganize(dataBase: DataBase) {
         dataBase.keysFile.seek(0)
         var line = dataBase.keysFile.readLine()
         while (line != null) {
-            if(line[0] != '$') {
+            if (line[0] != '$') {
                 val key = line.split("$")[0]
                 keyValList.add(KeyVal(key, find(dataBase, key)!!))
             }
@@ -232,8 +232,8 @@ fun reorganize(dataBase: DataBase) {
         }
         dataBase.keysFile.setLength(0)
         dataBase.valuesFile.setLength(0)
-        for (i in keyValList){
-            add(dataBase,i)
+        for (i in keyValList) {
+            add(dataBase, i)
         }
     }
 }
