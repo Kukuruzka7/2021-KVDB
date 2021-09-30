@@ -1,14 +1,15 @@
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.charset.Charset
+import java.util.*
 import kotlin.text.StringBuilder
 
 const val DATA_BASES_DIR = ""
-val charset = Charset.forName("UTF-16")
+const val MAX_DEL = 1000
 //место, где мы храним папку с базами данных
 
 enum class Command {
-    ADD, DEL, FIND, PRINT
+    ADD, DEL, FIND, PRINT, FIND_FROM_FILE
 }
 
 enum class Error {
@@ -19,7 +20,7 @@ data class KeyVal(val key: Key, val value: Value) {}
 data class DataBase(
     val keysFile: RandomAccessFile,
     val valuesFile: RandomAccessFile,
-    val texInfoFile: RandomAccessFile,
+    val texInfoFile: File,
     var numberOfDelValues: Int
 ) {}
 typealias BaseName = String
@@ -30,6 +31,7 @@ typealias Value = String
 // add <dataBaseName> <key> <val> --- добавить ключ - значение в базу данных dataBaseName
 // del <dataBaseName> <key> --- удалить значение по ключу в базе данных dataBaseName
 // find <dataBaseName> <key> --- найти значение по ключу в базе данных dataBaseName
+// find_from_file <dataBaseName> <file.txt> --- найти значение по ключу в базе данных dataBaseName
 // print <dataBaseName> --- вывести базу данных dataBaseName
 
 fun main(args: Array<String>) {
@@ -41,6 +43,11 @@ fun main(args: Array<String>) {
             Command.ADD -> add(dataBase, getInputKeyVal(args))
             Command.DEL -> del(dataBase, getInputKey(args))
             Command.FIND -> println(find(dataBase, getInputKey(args)) ?: "Такого ключа нет в базе данных.")
+            Command.FIND_FROM_FILE -> findFromFile(dataBase, getInputFile(args))?.forEach {
+                println(
+                    it ?: printErr(Error.BAD_KEY)
+                )
+            } ?: printErr(Error.BAD_COMMAND)
             Command.PRINT -> print(dataBase)
         }
         reorganize(dataBase)
@@ -48,6 +55,13 @@ fun main(args: Array<String>) {
     } else {
         printErr(Error.BAD_COMMAND)
     }
+}
+
+fun getInputFile(args: Array<String>): File? {
+    if (args.size < 3 && File(args[2]).exists()) {
+        return null
+    }
+    return File(args[2])
 }
 
 fun getInputBaseName(args: Array<String>): BaseName? {
@@ -71,6 +85,12 @@ fun getInputKey(args: Array<String>): Key? {
     return args[2]
 }
 
+fun getKeysFromFile(file: File): Array<Key> {
+    val lines = file.readLines()
+    val keys = Array(lines.size, { i -> lines[i] })
+    return keys
+}
+
 fun createDataBase(dataBaseName: BaseName): DataBase {
     if (!File(dataBaseName).exists()) {
         File(dataBaseName).mkdir()
@@ -82,10 +102,10 @@ fun createDataBase(dataBaseName: BaseName): DataBase {
     val dataBase = DataBase(
         RandomAccessFile(dataBaseName + "/keys.txt", "rw"),
         RandomAccessFile(dataBaseName + "/values.txt", "rw"),
-        RandomAccessFile(dataBaseName + "/texInfo.txt", "rw"), 0
+        File(dataBaseName + "/texInfo.txt"), 0
     )
-    dataBase.texInfoFile.seek(0)
-    dataBase.numberOfDelValues = dataBase.texInfoFile.readLine().toInt()
+    val scanner = Scanner(dataBase.texInfoFile)
+    dataBase.numberOfDelValues = scanner.nextInt()
     return dataBase
 }
 
@@ -106,8 +126,8 @@ fun findKeyPlace(keysFile: RandomAccessFile, key: Key): Long? {
 
 fun getRange(line: String): Pair<Long, Long> {
     val lineArguments = line.split("$")
-    if (lineArguments.size < 3) {
-        return Pair(0L, 0L)
+    if (lineArguments.size < 3 || line.first() == '$') {
+        return Pair(0L, -1L)
     } else {
         return Pair(lineArguments[1].toLong(), lineArguments[2].toLong())
     }
@@ -133,6 +153,15 @@ fun find(dataBase: DataBase, key: Key?): Value? {
     }
 }
 
+fun findFromFile(dataBase: DataBase, inputFile: File?): Array<Value?>? {
+    if (inputFile == null) {
+        return null
+    }
+    val keys = getKeysFromFile(inputFile)
+    val values = Array(keys.size, { i -> find(dataBase, keys[i]) })
+    return values
+}
+
 fun del(dataBase: DataBase, key: Key?) {
     if (key == null) {
         printErr(Error.BAD_COMMAND)
@@ -148,6 +177,8 @@ fun del(dataBase: DataBase, key: Key?) {
             dataBase.keysFile.seek(keyPlace)
             dataBase.keysFile.write(emptyLine.toString().toByteArray())
             dataBase.numberOfDelValues++
+        } else {
+            printErr(Error.BAD_KEY)
         }
     }
 }
@@ -170,10 +201,10 @@ fun add(dataBase: DataBase, kv: KeyVal?) {
 
 fun print(dataBase: DataBase) {
     var line = dataBase.keysFile.readLine()
-    while (line != "") {
+    while (line != null && line[0] != '$') {
         val key = line.split("$")[0]
         println(key + "$" + find(dataBase, key))
-        line = readLine()
+        line = dataBase.keysFile.readLine()
     }
 }
 
@@ -185,11 +216,16 @@ fun printErr(error: Error) {
 }
 
 fun reorganize(dataBase: DataBase) {
-    TODO("Not yet implemented")
+    if (dataBase.numberOfDelValues > MAX_DEL) {
+        dataBase.numberOfDelValues = 0
+        TODO()
+    }
 }
 
 fun close(dataBase: DataBase) {
     dataBase.keysFile.close()
     dataBase.valuesFile.close()
-    dataBase.texInfoFile.close()
+    val pw = dataBase.texInfoFile.printWriter()
+    pw.println(dataBase.numberOfDelValues)
+    pw.close()
 }
