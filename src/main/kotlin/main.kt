@@ -4,6 +4,7 @@ import java.util.Scanner
 import kotlin.text.StringBuilder
 
 const val DATA_BASES_DIR = ""
+
 //место, где мы храним папку с базами данных
 const val MAX_DEL = 1000
 //Момент, когда удаленных значений становится слишком много и нам надо переписать базу данных
@@ -39,7 +40,7 @@ typealias Key = String
 typealias Value = String
 
 fun main(args: Array<String>) {
-    if(!args.isEmpty()) {
+    if (!args.isEmpty()) {
         val command = Command.getCommandFromString(args[0])
         val baseName = getInputBaseName(args)
         if (baseName != null && command != Command.ERR) {

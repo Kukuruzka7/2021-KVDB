@@ -9,12 +9,12 @@ internal class Test1 {
     @Test
     fun testGetInputFile() {
         val args1 = arrayOf("add", "src", "test1.txt", "kjdsfhgshj")
-        val args2 = arrayOf("find_from_file", "database", "src/test/TestGetInputFile/test2.txt")
+        val args2 = arrayOf("find_from_file", "database", "Tests/TestGetInputFile/test2.txt")
         val args3 = arrayOf("add")
         val args4 = arrayOf("del", "sdfkj")
         val args5 = emptyArray<String>()
         assertEquals(null, getInputFile(args1))
-        assertEquals(File("src/test/TestGetInputFile/test2.txt"), getInputFile(args2))
+        assertEquals(File("Tests/TestGetInputFile/test2.txt"), getInputFile(args2))
         assertEquals(null, getInputFile(args3))
         assertEquals(null, getInputFile(args4))
         assertEquals(null, getInputFile(args5))
@@ -68,7 +68,7 @@ internal class Test1 {
 
     @Test
     fun testGetKeysFromFile() {
-        val path = "src/test/TestGetKeysFromFile/"
+        val path = "Tests/TestGetKeysFromFile/"
         val array1 = arrayOf("2q847", "sf", "s", "ss", "3", " %%", "2", "(", ")")
         val array2 = emptyArray<Key>()
         val array3 = arrayOf("1823", "888  2", "1")
@@ -84,7 +84,7 @@ internal class Test1 {
 
     @Test
     fun testCreateDataBase() {
-        val path = "src/test/TestCreateDataBase/"
+        val path = "Tests/TestCreateDataBase/"
         val base1 = createDataBase(path + "TestBase1")
         val base2 = createDataBase(path + "TestBase2")
         assertEquals(true, File(path + "TestBase1/keys.txt").isFile)
@@ -99,7 +99,7 @@ internal class Test1 {
 
     @Test
     fun testfindKeyPlace() {
-        val path = "src/test/TestFindKeyPlace/"
+        val path = "Tests/TestFindKeyPlace/"
         assertEquals(0, findKeyPlace(RandomAccessFile(path + "test1.txt", "rw"), "dfjh"))
         assertEquals(24, findKeyPlace(RandomAccessFile(path + "test2.txt", "rw"), "%"))
         assertEquals(null, findKeyPlace(RandomAccessFile(path + "test3.txt", "rw"), "sd"))
@@ -118,7 +118,7 @@ internal class Test1 {
 
     @Test
     fun testFind() {
-        val path = "src/test/TestFind/"
+        val path = "Tests/TestFind/"
         val base1 = createDataBase(path + "TestBase1")
         val base2 = createDataBase(path + "TestBase2")
         val base3 = createDataBase(path + "TestBase3")
@@ -143,7 +143,7 @@ internal class Test1 {
 
     @Test
     fun testFindFromFile() {
-        val path = "src/test/TestFindFromFile/"
+        val path = "Tests/TestFindFromFile/"
         val base1 = createDataBase(path + "TestBase1")
         val base2 = createDataBase(path + "TestBase2")
         val base3 = createDataBase(path + "TestBase3")
@@ -161,11 +161,11 @@ internal class Test1 {
 
     @Test
     fun testAdd1() {
-        val path = "src/test/TestAdd/"
-        File("src/test/TestAdd/TestBase1/keys.txt").delete()
-        File("src/test/TestAdd/TestBase1/values.txt").delete()
-        File("src/test/TestAdd/TestBase1/texInfo.txt").delete()
-        File("src/test/TestAdd/TestBase1").delete()
+        val path = "Tests/TestAdd/"
+        File("Tests/TestAdd/TestBase1/keys.txt").delete()
+        File("Tests/TestAdd/TestBase1/values.txt").delete()
+        File("Tests/TestAdd/TestBase1/texInfo.txt").delete()
+        File("Tests/TestAdd/TestBase1").delete()
         val base1 = createDataBase(path + "TestBase1")
         add(base1, KeyVal("1", "dj hff  "))
         assertEquals("dj hff  ", find(base1, "1"))
@@ -177,11 +177,11 @@ internal class Test1 {
 
     @Test
     fun testAdd2() {
-        val path = "src/test/TestAdd/"
-        File("src/test/TestAdd/TestBase2/keys.txt").delete()
-        File("src/test/TestAdd/TestBase2/values.txt").delete()
-        File("src/test/TestAdd/TestBase2/texInfo.txt").delete()
-        File("src/test/TestAdd/TestBase2").delete()
+        val path = "Tests/TestAdd/"
+        File("Tests/TestAdd/TestBase2/keys.txt").delete()
+        File("Tests/TestAdd/TestBase2/values.txt").delete()
+        File("Tests/TestAdd/TestBase2/texInfo.txt").delete()
+        File("Tests/TestAdd/TestBase2").delete()
         val base2 = createDataBase(path + "TestBase2")
         add(base2, KeyVal("2", "dj hff  "))
         add(base2, KeyVal("2", "dj hff  "))
@@ -197,11 +197,11 @@ internal class Test1 {
 
     @Test
     fun testDel1() {
-        val path = "src/test/TestDel/"
-        File("src/test/TestDel/TestBase1/keys.txt").delete()
-        File("src/test/TestDel/TestBase1/values.txt").delete()
-        File("src/test/TestDel/TestBase1/texInfo.txt").delete()
-        File("src/test/TestDel/TestBase1").delete()
+        val path = "Tests/TestDel/"
+        File("Tests/TestDel/TestBase1/keys.txt").delete()
+        File("Tests/TestDel/TestBase1/values.txt").delete()
+        File("Tests/TestDel/TestBase1/texInfo.txt").delete()
+        File("Tests/TestDel/TestBase1").delete()
         val base1 = createDataBase(path + "TestBase1")
         add(base1, KeyVal("1", "dj hff  "))
         add(base1, KeyVal("1", "dj hff  "))
@@ -224,11 +224,11 @@ internal class Test1 {
 
     @Test
     fun testReorganize() {
-        val path = "src/test/TestReorganize/"
-        File("src/test/TestReorganize/TestBase1/keys.txt").delete()
-        File("src/test/TestReorganize/TestBase1/values.txt").delete()
-        File("src/test/TestReorganize/TestBase1/texInfo.txt").delete()
-        File("src/test/TestReorganize/TestBase1").delete()
+        val path = "Tests/TestReorganize/"
+        File("Tests/TestReorganize/TestBase1/keys.txt").delete()
+        File("Tests/TestReorganize/TestBase1/values.txt").delete()
+        File("Tests/TestReorganize/TestBase1/texInfo.txt").delete()
+        File("Tests/TestReorganize/TestBase1").delete()
         val base1 = createDataBase(path + "TestBase1")
         repeat(MAX_DEL) {
             add(base1, KeyVal("1", "dj hff  "))
@@ -250,11 +250,11 @@ internal class Test1 {
 
     @Test
     fun testProgramTime() {
-        val path = "src/test/TestProgramTime/"
-        File("src/test/TestProgramTime/TestBase1/keys.txt").delete()
-        File("src/test/TestProgramTime/TestBase1/values.txt").delete()
-        File("src/test/TestProgramTime/TestBase1/texInfo.txt").delete()
-        File("src/test/TestProgramTime/TestBase1").delete()
+        val path = "Tests/TestProgramTime/"
+        File("Tests/TestProgramTime/TestBase1/keys.txt").delete()
+        File("Tests/TestProgramTime/TestBase1/values.txt").delete()
+        File("Tests/TestProgramTime/TestBase1/texInfo.txt").delete()
+        File("Tests/TestProgramTime/TestBase1").delete()
         val base1 = createDataBase(path + "TestBase1")
         val longString = StringBuilder()
         repeat(100000) {
