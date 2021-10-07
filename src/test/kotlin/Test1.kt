@@ -8,72 +8,72 @@ internal class Test1 {
 
     @Test
     fun testGetInputFile() {
-        val args1 = arrayOf("add", "src", "test1.txt", "kjdsfhgshj")
-        val args2 = arrayOf("find_from_file", "database", "Tests/TestGetInputFile/test2.txt")
-        val args3 = arrayOf("add")
-        val args4 = arrayOf("del", "sdfkj")
-        val args5 = emptyArray<String>()
-        assertEquals(null, getInputFile(args1))
-        assertEquals(File("Tests/TestGetInputFile/test2.txt"), getInputFile(args2))
-        assertEquals(null, getInputFile(args3))
-        assertEquals(null, getInputFile(args4))
-        assertEquals(null, getInputFile(args5))
+        val args1 = Input(arrayOf("add", "src", "test1.txt", "kjdsfhgshj"))
+        val args2 = Input(arrayOf("find_from_file", "database", "Tests/TestGetInputFile/test2.txt"))
+        val args3 = Input(arrayOf("add"))
+        val args4 = Input(arrayOf("del", "sdfkj"))
+        val args5 = Input(emptyArray<String>())
+        assertEquals(null, args1.getInputFile())
+        assertEquals(File("Tests/TestGetInputFile/test2.txt"), args2.getInputFile())
+        assertEquals(null, args3.getInputFile())
+        assertEquals(null, args4.getInputFile())
+        assertEquals(null, args5.getInputFile())
     }
 
     @Test
     fun testGetInputBaseName() {
-        val args1 = arrayOf("add", "src", "sdfkj", "kjdsfhgshj")
-        val args2 = arrayOf("del", "src/sklfir")
-        val args3 = arrayOf("add")
-        val args4 = arrayOf("del", "sdfkj")
-        val args5 = emptyArray<String>()
-        assertEquals(DATA_BASES_DIR + "src", getInputBaseName(args1))
-        assertEquals(DATA_BASES_DIR + "src/sklfir", getInputBaseName(args2))
-        assertEquals(null, getInputBaseName(args3))
-        assertEquals(DATA_BASES_DIR + "sdfkj", getInputBaseName(args4))
-        assertEquals(null, getInputBaseName(args5))
+        val args1 = Input(arrayOf("add", "src", "sdfkj", "kjdsfhgshj"))
+        val args2 = Input(arrayOf("del", "src/sklfir"))
+        val args3 = Input(arrayOf("add"))
+        val args4 = Input(arrayOf("del", "sdfkj"))
+        val args5 = Input(emptyArray<String>())
+        assertEquals(DATA_BASES_DIR + "src", args1.getInputBaseName())
+        assertEquals(DATA_BASES_DIR + "src/sklfir", args2.getInputBaseName())
+        assertEquals(null, args3.getInputBaseName())
+        assertEquals(DATA_BASES_DIR + "sdfkj", args4.getInputBaseName())
+        assertEquals(null, args5.getInputBaseName())
     }
 
     @Test
     fun testGetInputKeyVal() {
-        val args1 = arrayOf("add", "src", "sdfkj", "kjdsfhgshj")
-        val args2 = arrayOf("add", "", "sdfkjsf  ", "k  jdsfhgshj")
-        val args3 = arrayOf("del", "src/sklfir")
-        val args4 = arrayOf("add")
-        val args5 = arrayOf("del", "sdfkj")
-        val args6 = emptyArray<String>()
-        assertEquals(KeyVal("sdfkj", "kjdsfhgshj"), getInputKeyVal(args1))
-        assertEquals(KeyVal("sdfkjsf  ", "k  jdsfhgshj"), getInputKeyVal(args2))
-        assertEquals(null, getInputKeyVal(args3))
-        assertEquals(null, getInputKeyVal(args4))
-        assertEquals(null, getInputKeyVal(args5))
-        assertEquals(null, getInputKeyVal(args6))
+        val args1 = Input(arrayOf("add", "src", "sdfkj", "kjdsfhgshj"))
+        val args2 = Input(arrayOf("add", "", "sdfkjsf  ", "k  jdsfhgshj"))
+        val args3 = Input(arrayOf("del", "src/sklfir"))
+        val args4 = Input(arrayOf("add"))
+        val args5 = Input(arrayOf("del", "sdfkj"))
+        val args6 = Input(emptyArray<String>())
+        assertEquals(KeyVal("sdfkj", "kjdsfhgshj"), args1.getInputKeyVal())
+        assertEquals(KeyVal("sdfkjsf  ", "k  jdsfhgshj"), args2.getInputKeyVal())
+        assertEquals(null, args3.getInputKeyVal())
+        assertEquals(null, args4.getInputKeyVal())
+        assertEquals(null, args5.getInputKeyVal())
+        assertEquals(null, args6.getInputKeyVal())
     }
 
     @Test
     fun testGetInputKey() {
-        val args1 = arrayOf("add", "src", "sdfkj", "kjdsfhgshj")
-        val args2 = arrayOf("add", "", "sdfkjsf  ", "k  jdsfhgshj")
-        val args3 = arrayOf("del", "src/sklfir")
-        val args4 = arrayOf("add")
-        val args5 = arrayOf("del", "sdfkj")
-        val args6 = emptyArray<String>()
-        assertEquals("sdfkj", getInputKey(args1))
-        assertEquals("sdfkjsf  ", getInputKey(args2))
-        assertEquals(null, getInputKey(args3))
-        assertEquals(null, getInputKey(args4))
-        assertEquals(null, getInputKey(args5))
-        assertEquals(null, getInputKey(args6))
+        val args1 = Input(arrayOf("add", "src", "sdfkj", "kjdsfhgshj"))
+        val args2 = Input(arrayOf("add", "", "sdfkjsf  ", "k  jdsfhgshj"))
+        val args3 = Input(arrayOf("del", "src/sklfir"))
+        val args4 = Input(arrayOf("add"))
+        val args5 = Input(arrayOf("del", "sdfkj"))
+        val args6 = Input(emptyArray<String>())
+        assertEquals("sdfkj", args1.getInputKey())
+        assertEquals("sdfkjsf  ", args2.getInputKey())
+        assertEquals(null, args3.getInputKey())
+        assertEquals(null, args4.getInputKey())
+        assertEquals(null, args5.getInputKey())
+        assertEquals(null, args6.getInputKey())
     }
 
     @Test
     fun testGetKeysFromFile() {
         val path = "Tests/TestGetKeysFromFile/"
-        val array1 = arrayOf("2q847", "sf", "s", "ss", "3", " %%", "2", "(", ")")
-        val array2 = emptyArray<Key>()
-        val array3 = arrayOf("1823", "888  2", "1")
-        val array4 = arrayOf("11")
-        val array5 = arrayOf("^^^^")
+        val array1 = listOf("2q847", "sf", "s", "ss", "3", " %%", "2", "(", ")")
+        val array2 = emptyList<Key>()
+        val array3 = listOf("1823", "888  2", "1")
+        val array4 = listOf("11")
+        val array5 = listOf("^^^^")
         assertContentEquals(array1, getKeysFromFile(File(path + "test1.txt")))
         assertContentEquals(array2, getKeysFromFile(File(path + "test2.txt")))
         assertContentEquals(array3, getKeysFromFile(File(path + "test3.txt")))
@@ -150,13 +150,13 @@ internal class Test1 {
         val base4 = createDataBase(path + "TestBase4")
         val base5 = createDataBase(path + "TestBase5")
         assertContentEquals(
-            arrayOf(null, null, null, "skjdhf", "dsfjhjdsfh  "),
+            listOf(null, null, null, "skjdhf", "dsfjhjdsfh  "),
             findFromFile(base1, File(path + "test1.txt"))
         )
-        assertContentEquals(arrayOf("1 0 2 ", "aa", null, null, null), findFromFile(base2, File(path + "test2.txt")))
-        assertContentEquals(arrayOf("skjdft", "skjdft", null), findFromFile(base3, File(path + "test3.txt")))
-        assertContentEquals(arrayOf("sk", "sk", "sk", "sk", "sk"), findFromFile(base4, File(path + "test4.txt")))
-        assertContentEquals(arrayOf(null, null, null, null, null), findFromFile(base5, File(path + "test5.txt")))
+        assertContentEquals(listOf("1 0 2 ", "aa", null, null, null), findFromFile(base2, File(path + "test2.txt")))
+        assertContentEquals(listOf("skjdft", "skjdft", null), findFromFile(base3, File(path + "test3.txt")))
+        assertContentEquals(listOf("sk", "sk", "sk", "sk", "sk"), findFromFile(base4, File(path + "test4.txt")))
+        assertContentEquals(listOf(null, null, null, null, null), findFromFile(base5, File(path + "test5.txt")))
     }
 
     @Test
